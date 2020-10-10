@@ -8,6 +8,7 @@
         "lint": "npx eslint . --ext .js,.jsx,.ts,.tsx && npx stylelint \"**/*.css\"",
         "build": "npx webpack --config webpack.dev.js",
         "build:prod": "npm run lint && npx webpack --config webpack.prod.js",
+        "package": "npm run build:prod && tar -C dist -caf virtual_devices_editor.zip *",
         "build:watch": "npx webpack --config webpack.dev.js --watch"
     },
     "keywords": [],
