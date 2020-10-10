@@ -1,0 +1,273 @@
+{
+    "prefix": "DeviceService/Virtual.",
+    "enums": {
+        "FiscalVolumeType": [
+            {
+                "key": 0,
+                "title": "Неопределенный тип"
+            },
+            {
+                "key": 1,
+                "title": "Фискальная память"
+            },
+            {
+                "key": 2,
+                "title": "ЭКЛЗ"
+            },
+            {
+                "key": 3,
+                "title": "Фискальный накопитель"
+            }
+        ],
+        "FdLifeState": [
+            {
+                "key": 0,
+                "title": "Настройка"
+            },
+            {
+                "key": 1,
+                "title": "Готовность фискализаци"
+            },
+            {
+                "key": 3,
+                "title": "Фискальный реж"
+            },
+            {
+                "key": 7,
+                "title": "Постфискальный режим, идет передача ФД в ОФ"
+            },
+            {
+                "key": 15,
+                "title": "Чтение данных из Архива ФН"
+            }
+        ],
+        "FFDVersion": [
+            {
+                "key": 1,
+                "title": "1.0"
+            },
+            {
+                "key": 2,
+                "title": "1.05"
+            },
+            {
+                "key": 3,
+                "title": "1.1"
+            }
+        ],
+        "DriverVersionStatus": [
+            {
+                "key": 0,
+                "title": "OK"
+            },
+            {
+                "key": 1,
+                "title": "LESS_THAN_MININAL"
+            },
+            {
+                "key": 2,
+                "title": "LESS_THAN_RECOMMENDED"
+            },
+            {
+                "key": 3,
+                "title": "MORE_THAN_RECOMMENDED"
+            }
+        ]
+    },
+    "generics": {
+        "error": {
+            "__deletable": true,
+            "errorType": "number",
+            "type": "string",
+            "isOnce": "boolean",
+            "detail": "string",
+            "message": "string"
+        }
+    },
+    "schemas": {
+        "kkm": {
+            "__help": "https://online.sbis.ru/shared/disk/7d3e5c7c-5acc-4d7d-94f8-a346d1529eb9",
+            "__version": 8,
+            "version": "number",
+            "delta": "number",
+            "device": {
+                "Driver": "string",
+                "DeviceID": "string",
+                "Model": "string",
+                "Firmware": "string",
+                "IsFiscalMode": "boolean",
+                "FiscalVolumeType": {
+                    "__type": "enum",
+                    "__name": "FiscalVolumeType"
+                },
+                "FiscalVolumeSerialNumber": "string",
+                "SerialNumber": "string",
+                "INN": "string",
+                "RNM": "string",
+                "DateTime": "string",
+                "Password": "string",
+                "SessionNumber": "number",
+                "TaxSystems": {
+                    "__type": "number",
+                    "__help": [
+                        "Битовая маска",
+                        "1 - ОСНО,",
+                        "2 - УСН Д,",
+                        "4 - УСН Д-Р,",
+                        "8 - ЕНВД,",
+                        "16 - ЕСН,",
+                        "32 - Патент"
+                    ]
+                },
+                "ImmediateReplacementCryptoCoProcessor": "boolean",
+                "CryptoCoProcessorResourceExhaustion": "boolean",
+                "FDMemoryOverflow": "boolean",
+                "OFDWaitingTimeExceeded": "boolean",
+                "FDCriticalError": "boolean",
+                "FDExpiryDate": "string",
+                "OnlinePaymentsReady": "boolean",
+                "FdLifeState": {
+                    "__type": "enum",
+                    "__name": "FdLifeState"
+                },
+                "EncryptionFeature": "boolean",
+                "OfflineModeFeature": "boolean",
+                "AutomaticModeFeature": "boolean",
+                "PaymentForServicesFeature": "boolean",
+                "AutomationSystemForFSAFeature": "boolean",
+                "InternetPaymentsFeature": "boolean",
+                "IsSupportSendingNomenclatureCode": "boolean",
+                "IsVAT20Ready": "boolean",
+                "ExcisableGoodsFeature": "boolean",
+                "GamblingFeature": "boolean",
+                "LotteryFeature": "boolean",
+                "AutomatonFeature": "boolean",
+                "PaymentAgentType": {
+                    "__type": "number",
+                    "__help": [
+                        "Битовая маска",
+                        "0 - Не задан",
+                        "1 - Оказание услуг покупателю (клиенту) пользователем, являющимся банковским платежным агентом",
+                        "2 - Оказание услуг покупателю (клиенту) пользователем, являющимся банковским платежным субагентом",
+                        "4 - Оказание услуг покупателю (клиенту) пользователем, являющимся платежным агентом",
+                        "8 - Оказание услуг покупателю (клиенту) пользователем, являющимся платежным субагентом",
+                        "16 - Осуществление расчета с покупателем (клиентом) пользователем, являющимся поверенным",
+                        "32 - Осуществление расчета с покупателем (клиентом) пользователем, являющимся комиссионером",
+                        "64 - Осуществление расчета с покупателем (клиентом) пользователем, являющимся агентом и не являющимся банковским платежным агентом (субагентом), платежным агентом (субагентом), поверенным, комиссионером"
+                    ]
+                },
+                "FFDVersion": {
+                    "__type": "enum",
+                    "__name": "FFDVersion"
+                },
+                "DocumentFdVersion": {
+                    "__type": "enum",
+                    "__name": "FFDVersion"
+                },
+                "DocumentKktVersion": {
+                    "__type": "enum",
+                    "__name": "FFDVersion"
+                },
+                "DriverVersion": {
+                    "__nullable": true,
+                    "Current": "string",
+                    "FirstRecommended": "string",
+                    "LastRecommended": "string",
+                    "MinRequired": "string",
+                    "Status": {
+                        "__type": "enum",
+                        "__name": "DriverVersionStatus"
+                    }
+                }
+            },
+            "ofd": {
+                "FiscalDocumentsCountForTransmit": "number",
+                "FirstUntransmittedFiscalDocumentDateTime": "string"
+            },
+            "emulation": {
+                "delay": {
+                    "printDocument": "number",
+                    "continuePrint": "number",
+                    "getKKMInfo": "number",
+                    "getDeviceInfo": "number",
+                    "getLastFiscalDocumentNumber": "number",
+                    "getDocumentsCountSession": "number",
+                    "getSessionState": "number",
+                    "getLastFiscalDocumentData": "number",
+                    "getFiscalDocumentData": "number",
+                    "getFiscalSessionData": "number",
+                    "getCurrentSessionResults": "number",
+                    "getOFDUntransmittedDocumentsInfo": "number",
+                    "getLastReceiptSaleNumber": "number",
+                    "getPaymentTypes": "number",
+                    "setPaymentTypes": "number",
+                    "setDateTime": "number",
+                    "openCashbox": "number",
+                    "getFiscalDocumentDataFDArchive": "number",
+                    "getFiscalSessionData2": "number"
+                },
+                "delayAsync": {
+                    "getFiscalSessionData2": "number"
+                },
+                "error": {
+                    "__type": "generic",
+                    "__name": "error",
+                    "__possibleValues": [
+                        "printDocument",
+                        "continuePrint",
+                        "getKKMInfo",
+                        "getDeviceInfo",
+                        "getLastFiscalDocumentNumber",
+                        "getDocumentsCountSession",
+                        "getSessionState",
+                        "getLastFiscalDocumentData",
+                        "getFiscalDocumentData",
+                        "getFiscalSessionData",
+                        "getCurrentSessionResults",
+                        "getOFDUntransmittedDocumentsInfo",
+                        "getLastReceiptSaleNumber",
+                        "getPaymentTypes",
+                        "setPaymentTypes",
+                        "setDateTime",
+                        "openCashbox",
+                        "getFiscalDocumentDataFDArchive",
+                        "getFiscalSessionData2"
+                    ]
+                }
+            }
+        },
+        "posscanner": {
+            "__help": "https://online.sbis.ru/shared/disk/36216fc7-6b58-4668-986c-7aa4df505790",
+            "delta": "number",
+            "version": "number",
+            "isActivate": "boolean",
+            "device": {
+                "DateTime": "string",
+                "DeviceID": "string",
+                "Driver": "string",
+                "Firmware": "string",
+                "Model": "string"
+            },
+            "emulation": {
+                "delay": {
+                    "create": "number",
+                    "getDeviceInfo": "number",
+                    "remove": "number",
+                    "start": "number",
+                    "stop": "number"
+                },
+                "error": {
+                    "__type": "generic",
+                    "__name": "error",
+                    "__possibleValues": [
+                        "create",
+                        "getDeviceInfo",
+                        "remove",
+                        "start",
+                        "stop"
+                    ]
+                }
+            }
+        }
+    }
+}

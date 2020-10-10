@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "sourceMap": true,
+        "target": "es6",
+        "module": "commonjs",
+        "jsx": "react",
+        "strictNullChecks": true,
+        "noImplicitAny": true,
+        "noImplicitReturns": true,
+        "noEmitOnError": true,
+        "resolveJsonModule": true,
+        "suppressImplicitAnyIndexErrors": true
+    },
+    "exclude": ["node_modules"]
+}

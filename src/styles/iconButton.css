@@ -1,0 +1,14 @@
+.featherIcon {
+    width: 20px;
+    cursor: pointer;
+    height: 20px;
+    stroke: #304ffe;
+    stroke-width: 2px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    fill: none;
+}
+
+.featherIcon:hover {
+    stroke: #ff6d00;
+}
