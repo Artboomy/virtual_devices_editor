@@ -23,6 +23,8 @@ body {
     font-weight: 600;
     color: darkblue;
     font-size: 1.5em;
+    display: flex;
+    align-items: center;
 }
 
 .topRow {
@@ -42,12 +44,20 @@ body {
     margin-left: 4px;
 }
 
+.rightMargin {
+    margin-right: 4px;
+}
+
 .paddedBlock {
     padding: 4px;
 }
 
 select {
     height: 20px;
+}
+
+.errorTypeSelect {
+    max-width: 330px;
 }
 
 .separator {
@@ -72,3 +82,4 @@ select {
     display: flex;
     align-items: center;
 }
+

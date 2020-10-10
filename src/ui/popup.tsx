@@ -295,6 +295,12 @@ class Main extends React.Component<Record<string, unknown>, IState> {
         );
     };
 
+    private _handleOpenGithub = () => {
+        chrome.tabs.create({
+            url: 'https://github.com/Artboomy/virtual_devices_editor'
+        });
+    };
+
     private _handleFileChange = async () => {
         const files = this.fileInput.current?.files;
         let content: typeof defaultSettings | JsonObject;
@@ -422,13 +428,13 @@ class Main extends React.Component<Record<string, unknown>, IState> {
                                         display: 'flex'
                                     }}>
                                     {type.__help && (
-                                        <span
-                                            className={'help-icon'}
+                                        <IconButton
+                                            icon={'info'}
+                                            className={'rightMargin'}
                                             title={(type.__help as string[]).join(
                                                 '\r\n'
-                                            )}>
-                                            ?
-                                        </span>
+                                            )}
+                                        />
                                     )}
                                     {key} :{' '}
                                     <input
@@ -444,12 +450,15 @@ class Main extends React.Component<Record<string, unknown>, IState> {
                             );
                             break;
                         case 'enum':
+                            if (typeof type.__name !== 'string') {
+                                throw Error('Enums should have a name');
+                            }
                             selectOptions = this.state.settings.enums[
                                 type.__name as string
                             ].map((item: IEnumElement) => {
                                 return (
                                     <option key={item.key} value={item.key}>
-                                        {item.title}
+                                        {`${item.title} [${item.key}]`}
                                     </option>
                                 );
                             });
@@ -461,6 +470,13 @@ class Main extends React.Component<Record<string, unknown>, IState> {
                                     }}>
                                     {key} :{' '}
                                     <select
+                                        className={
+                                            type.__name
+                                                .toLowerCase()
+                                                .includes('error')
+                                                ? 'errorTypeSelect'
+                                                : ''
+                                        }
                                         style={{ flexGrow: 1 }}
                                         value={current as string}
                                         onChange={this._handleValueChange(
@@ -640,6 +656,12 @@ class Main extends React.Component<Record<string, unknown>, IState> {
                         <div className={'title'}>
                             VirtualDevices-
                             {chrome.runtime.getManifest().version}
+                            <IconButton
+                                className={'leftMargin'}
+                                icon={'github'}
+                                title={'Github'}
+                                onClick={this._handleOpenGithub}
+                            />
                         </div>
                         <div className={'rowWithIcons'}>
                             <span>Settings: </span>
