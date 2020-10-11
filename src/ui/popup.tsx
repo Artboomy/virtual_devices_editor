@@ -7,6 +7,7 @@ import ErrorBoundary from './errorBoundary';
 
 import * as defaultSettings from './settings.json';
 import IconButton from './iconButton';
+import MainHeader from './mainHeader';
 
 type JsonObject = { [property: string]: Json };
 type Json = string | number | boolean | null | JsonObject | Json[];
@@ -293,12 +294,6 @@ class Main extends React.Component<Record<string, unknown>, IState> {
                 });
             }
         );
-    };
-
-    private _handleOpenGithub = () => {
-        chrome.tabs.create({
-            url: 'https://github.com/Artboomy/virtual_devices_editor'
-        });
     };
 
     private _handleFileChange = async () => {
@@ -624,6 +619,34 @@ class Main extends React.Component<Record<string, unknown>, IState> {
         );
     }
 
+    private _getStaticButtons(): JSX.Element {
+        return (
+            <div className={'deviceStaticButtons'}>
+                <hr className={'separator'} />
+                {this._getSchema()?.__help && (
+                    <IconButton
+                        className={'leftMargin'}
+                        icon={'help-circle'}
+                        title={'API'}
+                        onClick={this._handleOpenHelp}
+                    />
+                )}
+                <IconButton
+                    className={'leftMargin'}
+                    icon={'upload'}
+                    title={'Import'}
+                    onClick={this._handleImportDevice}
+                />
+                <IconButton
+                    className={'leftMargin'}
+                    icon={'download'}
+                    title={'Export'}
+                    onClick={this._handleExportDevice}
+                />
+            </div>
+        );
+    }
+
     render() {
         const selectOptions = Object.keys(this.state.devices).map((key) => {
             return (
@@ -652,39 +675,11 @@ class Main extends React.Component<Record<string, unknown>, IState> {
                     style={{ display: 'none' }}
                 />
                 <div className='header'>
-                    <div className={'topRow'}>
-                        <div className={'title'}>
-                            VirtualDevices-
-                            {chrome.runtime.getManifest().version}
-                            <IconButton
-                                className={'leftMargin'}
-                                icon={'github'}
-                                title={'Github'}
-                                onClick={this._handleOpenGithub}
-                            />
-                        </div>
-                        <div className={'rowWithIcons'}>
-                            <span>Settings: </span>
-                            <IconButton
-                                className={'leftMargin'}
-                                icon={'x-circle'}
-                                title={'Reset settings'}
-                                onClick={this._handleResetSettings}
-                            />
-                            <IconButton
-                                className={'leftMargin'}
-                                icon={'upload'}
-                                title={'Import settings'}
-                                onClick={this._handleImportSettings}
-                            />
-                            <IconButton
-                                className={'leftMargin'}
-                                icon={'download'}
-                                title={'Export settings'}
-                                onClick={this._handleExportSettings}
-                            />
-                        </div>
-                    </div>
+                    <MainHeader
+                        onExportSettings={this._handleExportSettings}
+                        onImportSettings={this._handleImportSettings}
+                        onResetSettings={this._handleResetSettings}
+                    />
                     <hr />
                     <div>
                         {!hasDevices ? (
@@ -722,34 +717,12 @@ class Main extends React.Component<Record<string, unknown>, IState> {
                                         />
                                     </div>
                                 )}
-                                <div className={'deviceStaticButtons'}>
-                                    <hr className={'separator'} />
-                                    {this._getSchema()?.__help && (
-                                        <IconButton
-                                            className={'leftMargin'}
-                                            icon={'help-circle'}
-                                            title={'API'}
-                                            onClick={this._handleOpenHelp}
-                                        />
-                                    )}
-                                    <IconButton
-                                        className={'leftMargin'}
-                                        icon={'upload'}
-                                        title={'Import'}
-                                        onClick={this._handleImportDevice}
-                                    />
-                                    <IconButton
-                                        className={'leftMargin'}
-                                        icon={'download'}
-                                        title={'Export'}
-                                        onClick={this._handleExportDevice}
-                                    />
-                                </div>
+                                {this._getStaticButtons()}
                             </div>
                         )}
                     </div>
                 </div>
-                <div>{body}</div>
+                <div>{hasDevices ? body : ''}</div>
             </div>
         );
     }
@@ -790,40 +763,38 @@ class Main extends React.Component<Record<string, unknown>, IState> {
     };
 
     private _getDevices() {
+        if (!this._tabId) {
+            throw Error('Нет подключенной вкладки');
+        }
         return new Promise((resolve) => {
-            if (this._tabId) {
-                chrome.tabs.sendMessage(
-                    this._tabId,
-                    { action: 'get', prefix: this.state.settings.prefix },
-                    (response) => {
-                        if (response) {
-                            const devices: Record<string, JsonObject> = {};
-                            Object.keys(response).forEach((key) => {
-                                devices[key] = JSON.parse(response[key]);
-                            });
-                            const keys = Object.keys(response);
-                            const defaultKey =
-                                keys[0] || this.state.selectedDevice;
-                            this.setState(
-                                {
-                                    devices,
-                                    selectedDevice:
-                                        this.state.selectedDevice == 'None'
-                                            ? defaultKey
-                                            : this.state.selectedDevice,
-                                    hasChanges: false,
-                                    originalDevice: undefined
-                                },
-                                resolve
-                            );
-                        } else {
-                            resolve();
-                        }
+            chrome.tabs.sendMessage(
+                this._tabId,
+                { action: 'get', prefix: this.state.settings.prefix },
+                (response) => {
+                    if (response) {
+                        const devices: Record<string, JsonObject> = {};
+                        Object.keys(response).forEach((key) => {
+                            devices[key] = JSON.parse(response[key]);
+                        });
+                        const keys = Object.keys(response);
+                        const defaultKey = keys[0] || this.state.selectedDevice;
+                        this.setState(
+                            {
+                                devices,
+                                selectedDevice:
+                                    this.state.selectedDevice == 'None'
+                                        ? defaultKey
+                                        : this.state.selectedDevice,
+                                hasChanges: false,
+                                originalDevice: undefined
+                            },
+                            resolve
+                        );
+                    } else {
+                        resolve();
                     }
-                );
-            } else {
-                resolve();
-            }
+                }
+            );
         });
     }
 }
