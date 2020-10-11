@@ -128,7 +128,10 @@ class Main extends React.Component<Record<string, unknown>, IState> {
         if (event.target instanceof HTMLInputElement) {
             switch (type) {
                 case 'text':
-                    typedValue = event.target.value;
+                    typedValue =
+                        event.target.value === 'null'
+                            ? null
+                            : event.target.value;
                     break;
                 case 'number':
                     typedValue = parseFloat(event.target.value);
@@ -347,6 +350,8 @@ class Main extends React.Component<Record<string, unknown>, IState> {
             schemaKey = 'kkm';
         } else if (selectedDevice.includes('posscanner')) {
             schemaKey = 'posscanner';
+        } else if (selectedDevice.includes('posscales')) {
+            schemaKey = 'posscales';
         }
         return schemaKey ? this.state.settings.schemas[schemaKey] : undefined;
     }
@@ -394,7 +399,11 @@ class Main extends React.Component<Record<string, unknown>, IState> {
                             <input
                                 style={{ flexGrow: 1 }}
                                 onChange={this._handleValueChange(valuePath)}
-                                value={current as string}
+                                value={
+                                    typeof current === 'string'
+                                        ? current
+                                        : 'null'
+                                }
                             />
                         </label>
                     );

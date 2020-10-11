@@ -311,12 +311,20 @@
         ]
     },
     "generics": {
-        "error": {
+        "kkmError": {
             "__deletable": true,
             "errorType": {
                 "__type": "enum",
                 "__name": "KkmErrorCode"
             },
+            "type": "string",
+            "isOnce": "boolean",
+            "detail": "string",
+            "message": "string"
+        },
+        "error": {
+            "__deletable": true,
+            "errorType": "number",
             "type": "string",
             "isOnce": "boolean",
             "detail": "string",
@@ -454,7 +462,7 @@
                 },
                 "error": {
                     "__type": "generic",
-                    "__name": "error",
+                    "__name": "kkmError",
                     "__possibleValues": [
                         "printDocument",
                         "continuePrint",
@@ -482,7 +490,7 @@
         "posscanner": {
             "__help": "https://online.sbis.ru/shared/disk/36216fc7-6b58-4668-986c-7aa4df505790",
             "delta": "number",
-            "version": "number",
+            "version": "2",
             "isActivate": "boolean",
             "device": {
                 "DateTime": "string",
@@ -508,6 +516,36 @@
                         "remove",
                         "start",
                         "stop"
+                    ]
+                }
+            }
+        },
+        "posscales": {
+            "__help": "https://online.sbis.ru/shared/disk/d42836ee-c2a0-4965-917d-1cec80fa5213",
+            "__version": 1,
+            "version": 1,
+            "device": {
+                "Model": "string",
+                "Firmware": "string",
+                "tare": "number",
+                "minWeight": "number",
+                "maxWeight": "number"
+            },
+            "emulation": {
+                "delay": {
+                    "getPosScalesInfo": "number",
+                    "getMeasuredValue": "number",
+                    "setZero": "number",
+                    "setTare": "number"
+                },
+                "error": {
+                    "__type": "generic",
+                    "__name": "error",
+                    "__possibleValues": [
+                        "getPosScalesInfo",
+                        "getMeasuredValue",
+                        "setZero",
+                        "setTare"
                     ]
                 }
             }

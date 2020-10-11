@@ -3,7 +3,7 @@ import IconButton from './iconButton';
 
 function handleOpenGithub() {
     chrome.tabs.create({
-        url: 'https://github.com/Artboomy/virtual_devices_editor'
+        url: chrome.runtime.getManifest().homepage_url
     });
 }
 

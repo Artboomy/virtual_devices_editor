@@ -1,5 +1,6 @@
 import { ErrorInfo } from 'react';
 import * as React from 'react';
+import '../styles/errrorBoundary.css';
 
 interface IState {
     error: Error | null;
@@ -29,7 +30,25 @@ export default class ErrorBoundary extends React.Component<IProps, IState> {
     render(): JSX.Element {
         if (this.state.hasError) {
             // You can render any custom fallback UI
-            return <h1>{this.state.error?.message}</h1>;
+            return (
+                <div>
+                    <div>
+                        <h3>
+                            An error occurred. Please send screenshot to&nbsp;
+                            <a
+                                href={chrome.runtime.getManifest().homepage_url}
+                                rel={'noreferrer'}
+                                target={'_blank'}>
+                                github
+                            </a>
+                        </h3>
+                    </div>
+                    <hr />
+                    <div className={'message'}>{this.state.error?.message}</div>
+                    <hr />
+                    <div className={'stack'}>{this.state.error?.stack}</div>
+                </div>
+            );
         }
         return this.props.children;
     }

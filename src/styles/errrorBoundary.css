@@ -1,0 +1,10 @@
+.stack {
+    white-space: pre-wrap;
+    word-break: break-all;
+    overflow: hidden;
+    max-width: 500px;
+}
+
+.message {
+    color: red;
+}
