@@ -344,16 +344,14 @@ class Main extends React.Component<Record<string, unknown>, IState> {
     };
 
     private _getSchema(): JsonObject {
-        let schemaKey;
         const selectedDevice = this.state.selectedDevice.toLowerCase();
-        if (selectedDevice.includes('kkm')) {
-            schemaKey = 'kkm';
-        } else if (selectedDevice.includes('posscanner')) {
-            schemaKey = 'posscanner';
-        } else if (selectedDevice.includes('posscales')) {
-            schemaKey = 'posscales';
-        }
-        return schemaKey ? this.state.settings.schemas[schemaKey] : undefined;
+        const supported = Object.keys(this.state.settings.schemas);
+        const schemaNames = supported.find((name) =>
+            selectedDevice.includes(name)
+        );
+        return schemaNames
+            ? this.state.settings.schemas[schemaNames]
+            : undefined;
     }
 
     private _getDevicesCopy(): IState['devices'] {

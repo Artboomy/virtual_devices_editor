@@ -308,6 +308,36 @@
                 "key": -100100,
                 "title": "Неизвестная ошибка;"
             }
+        ],
+        "TerminalErrorCode": [
+            {
+                "key": 999,
+                "title": "Нет связи с пин-падом"
+            },
+            {
+                "key": -100001,
+                "title": "Метод не поддерживается (UnsupportedMethod)"
+            },
+            {
+                "key": -101005,
+                "title": "Отсутствует связь"
+            },
+            {
+                "key": -101006,
+                "title": "Требуется синхронизация журнала"
+            },
+            {
+                "key": -101007,
+                "title": "Требуется сверка итогов"
+            },
+            {
+                "key": -101008,
+                "title": "Указан некорректный номер отдела/организации/кабинета и т.п"
+            },
+            {
+                "key": -101010,
+                "title": "Отсутствует последняя успешная транзакция"
+            }
         ]
     },
     "generics": {
@@ -316,6 +346,17 @@
             "errorType": {
                 "__type": "enum",
                 "__name": "KkmErrorCode"
+            },
+            "type": "string",
+            "isOnce": "boolean",
+            "detail": "string",
+            "message": "string"
+        },
+        "terminalError": {
+            "__deletable": true,
+            "errorType": {
+                "__type": "enum",
+                "__name": "TerminalErrorCode"
             },
             "type": "string",
             "isOnce": "boolean",
@@ -542,10 +583,82 @@
                     "__type": "generic",
                     "__name": "error",
                     "__possibleValues": [
+                        "getDeviceInfo",
                         "getPosScalesInfo",
                         "getMeasuredValue",
                         "setZero",
                         "setTare"
+                    ]
+                }
+            }
+        },
+        "paymentterminal": {
+            "__help": "https://online.sbis.ru/shared/disk/a81c3746-4f9e-43ee-8d1e-07df8aceb62d",
+            "__version": 4,
+            "version": 4,
+            "delta": "number",
+            "device": {
+                "Model": "string",
+                "Firmware": "string",
+                "Driver": "string",
+                "DeviceID": "string",
+                "DateTime": "string"
+            },
+            "emulation": {
+                "delay": {
+                    "getPaymentTerminalInfo": "number",
+                    "printDocument": "number",
+                    "cancelLastSale": "number",
+                    "cancelSale": "number",
+                    "callCashierMenu": "number",
+                    "checkConnection": "number",
+                    "checkConnectionHost": "number"
+                },
+                "delayAsync": {
+                    "printDocument": "number",
+                    "cancelLastSale": "number",
+                    "cancelSale": "number",
+                    "callCashierMenu": "number",
+                    "checkConnection": "number",
+                    "checkConnectionHost": "number"
+                },
+                "error": {
+                    "__type": "generic",
+                    "__name": "terminalError",
+                    "__possibleValues": [
+                        "getPaymentTerminalInfo",
+                        "printDocument",
+                        "cancelLastSale",
+                        "cancelSale",
+                        "callCashierMenu",
+                        "checkConnection",
+                        "checkConnectionHost"
+                    ]
+                }
+            }
+        },
+        "buyerdisplay": {
+            "__help": "https://online.sbis.ru/shared/disk/c854d2af-9212-40fe-b9b1-300e76a6b67a",
+            "__version": 1,
+            "version": 1,
+            "device": {
+                "Model": "string",
+                "Firmware": "string",
+                "Driver": "string",
+                "LinesCount": "number",
+                "CharsInLine": "number"
+            },
+            "emulation": {
+                "delay": {
+                    "getBuyerDisplayInfo": "number",
+                    "clearAndPrint": "number"
+                },
+                "error": {
+                    "__type": "generic",
+                    "__name": "error",
+                    "__possibleValues": [
+                        "getBuyerDisplayInfo",
+                        "clearAndPrint"
                     ]
                 }
             }
