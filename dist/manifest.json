@@ -15,7 +15,11 @@
         "default_popup": "popup.html"
     },
     "permissions": [
-        "https://*/*",
+        "*://*.sbis.ru/*",
+        "*://*.saby.ru/*",
+        "*://*.sabyget.ru/*",
+        "*://*.tensor.ru/*",
+        "*://localhost/*",
         "storage"
     ],
     "content_security_policy": "default-src 'self';",

@@ -4,3 +4,4 @@ dist/css/*
 node_modules/
 .idea
 virtual_devices_editor.zip
+store_assets
