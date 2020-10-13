@@ -82,3 +82,7 @@ select {
     display: flex;
     align-items: center;
 }
+
+.hotkeysContainer:focus {
+    outline: none;
+}

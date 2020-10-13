@@ -8,6 +8,7 @@ import ErrorBoundary from './errorBoundary';
 import * as defaultSettings from './settings.json';
 import IconButton from './iconButton';
 import MainHeader from './mainHeader';
+import { HotKeys, configure } from 'react-hotkeys';
 
 type JsonObject = { [property: string]: Json };
 type Json = string | number | boolean | null | JsonObject | Json[];
@@ -36,9 +37,14 @@ function exportJson(obj: JsonObject, name: string): void {
 }
 
 class Main extends React.Component<Record<string, unknown>, IState> {
-    _tabId: number;
-    fileInput: RefObject<HTMLInputElement>;
+    private _tabId: number;
+    private readonly fileInput: RefObject<HTMLInputElement>;
     private _isDeviceImport = false;
+    private readonly _keyMap = {
+        SAVE: 'ctrl+s',
+        RESET: 'ctrl+z'
+    };
+    private readonly _keyHandlers: Record<string, (e?: KeyboardEvent) => void>;
 
     constructor(props: Record<string, unknown>) {
         super(props);
@@ -60,6 +66,18 @@ class Main extends React.Component<Record<string, unknown>, IState> {
                 });
             }
         );
+        this._keyHandlers = {
+            SAVE: (e?: KeyboardEvent) => {
+                e?.preventDefault();
+                console.info('save', e);
+                this._handleSaveDevice();
+            },
+            RESET: (e?: KeyboardEvent) => {
+                e?.preventDefault();
+                this._handleResetDevice();
+            }
+        };
+        configure({ ignoreTags: [] });
     }
 
     private _getObjectPartByPath(
@@ -672,65 +690,74 @@ class Main extends React.Component<Record<string, unknown>, IState> {
         }
         const hasDevices = !!Object.keys(this.state.devices).length;
         return (
-            <div className='popup-padded'>
-                <input
-                    type='file'
-                    accept='.json'
-                    value={''}
-                    ref={this.fileInput}
-                    onChange={this._handleFileChange}
-                    style={{ display: 'none' }}
-                />
-                <div className='header'>
-                    <MainHeader
-                        onExportSettings={this._handleExportSettings}
-                        onImportSettings={this._handleImportSettings}
-                        onResetSettings={this._handleResetSettings}
+            <HotKeys
+                keyMap={this._keyMap}
+                handlers={this._keyHandlers}
+                className={'hotkeysContainer'}>
+                <div className='popup-padded'>
+                    <input
+                        type='file'
+                        accept='.json'
+                        value={''}
+                        ref={this.fileInput}
+                        onChange={this._handleFileChange}
+                        style={{ display: 'none' }}
                     />
-                    <hr />
-                    <div>
-                        {!hasDevices ? (
-                            <div>No devices present</div>
-                        ) : (
-                            <div className={'rowWithIcons'}>
-                                <select
-                                    onChange={this._handleSelectedDeviceChange}
-                                    name=''
-                                    id='device'
-                                    disabled={this.state.hasChanges}
-                                    value={this.state.selectedDevice}>
-                                    {selectOptions}
-                                </select>
-                                <IconButton
-                                    className={'leftMargin'}
-                                    icon={'trash-2'}
-                                    title={'Remove'}
-                                    onClick={this._handleRemoveDevice}
-                                />
-                                {this.state.hasChanges && (
-                                    <div className={'deviceDynamicButtons'}>
-                                        <hr className={'separator'} />
-                                        <IconButton
-                                            className={'leftMargin'}
-                                            icon={'save'}
-                                            title={'Save changes'}
-                                            onClick={this._handleSaveDevice}
-                                        />
-                                        <IconButton
-                                            className={'leftMargin'}
-                                            icon={'x-circle'}
-                                            title={'Reset changes'}
-                                            onClick={this._handleResetDevice}
-                                        />
-                                    </div>
-                                )}
-                                {this._getStaticButtons()}
-                            </div>
-                        )}
+                    <div className='header'>
+                        <MainHeader
+                            onExportSettings={this._handleExportSettings}
+                            onImportSettings={this._handleImportSettings}
+                            onResetSettings={this._handleResetSettings}
+                        />
+                        <hr />
+                        <div>
+                            {!hasDevices ? (
+                                <div>No devices present</div>
+                            ) : (
+                                <div className={'rowWithIcons'}>
+                                    <select
+                                        onChange={
+                                            this._handleSelectedDeviceChange
+                                        }
+                                        name=''
+                                        id='device'
+                                        disabled={this.state.hasChanges}
+                                        value={this.state.selectedDevice}>
+                                        {selectOptions}
+                                    </select>
+                                    <IconButton
+                                        className={'leftMargin'}
+                                        icon={'trash-2'}
+                                        title={'Remove'}
+                                        onClick={this._handleRemoveDevice}
+                                    />
+                                    {this.state.hasChanges && (
+                                        <div className={'deviceDynamicButtons'}>
+                                            <hr className={'separator'} />
+                                            <IconButton
+                                                className={'leftMargin'}
+                                                icon={'save'}
+                                                title={'Save changes'}
+                                                onClick={this._handleSaveDevice}
+                                            />
+                                            <IconButton
+                                                className={'leftMargin'}
+                                                icon={'x-circle'}
+                                                title={'Reset changes'}
+                                                onClick={
+                                                    this._handleResetDevice
+                                                }
+                                            />
+                                        </div>
+                                    )}
+                                    {this._getStaticButtons()}
+                                </div>
+                            )}
+                        </div>
                     </div>
+                    <div>{hasDevices ? body : ''}</div>
                 </div>
-                <div>{hasDevices ? body : ''}</div>
-            </div>
+            </HotKeys>
         );
     }
 

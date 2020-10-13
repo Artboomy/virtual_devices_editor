@@ -1,6 +1,6 @@
 {
     "name": "Virtual Device Editor",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "manifest_version": 2,
     "description": "Virtual Device Editor via localStorage",
     "author": "dr.gumerov",
