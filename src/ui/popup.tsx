@@ -712,7 +712,7 @@ class Main extends React.Component<Record<string, unknown>, IState> {
                         <hr />
                         <div>
                             {!hasDevices ? (
-                                <div>No devices present</div>
+                                <div>Устройств не найдено</div>
                             ) : (
                                 <div className={'rowWithIcons'}>
                                     <select
@@ -755,7 +755,11 @@ class Main extends React.Component<Record<string, unknown>, IState> {
                             )}
                         </div>
                     </div>
-                    <div>{hasDevices ? body : ''}</div>
+                    <div>
+                        {hasDevices
+                            ? body
+                            : 'Если устройств не нашлось, попробуйте обновить страницу или добавить новое.'}
+                    </div>
                 </div>
             </HotKeys>
         );
