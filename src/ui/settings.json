@@ -345,38 +345,70 @@
             "__deletable": true,
             "errorType": {
                 "__type": "enum",
-                "__name": "KkmErrorCode"
+                "__name": "KkmErrorCode",
+                "__defaultValue": -100010
             },
-            "type": "string",
+            "type": {
+                "__type": "string",
+                "__defaultValue": "INTERNAL_SERVER_ERROR"
+            },
             "isOnce": "boolean",
-            "detail": "string",
-            "message": "string"
+            "detail": {
+                "__type": "string",
+                "__defaultValue": "Какая-то технические детали"
+            },
+            "message": {
+                "__type": "string",
+                "__defaultValue": "Какая-то ошибка"
+            }
         },
         "terminalError": {
             "__deletable": true,
             "errorType": {
                 "__type": "enum",
-                "__name": "TerminalErrorCode"
+                "__name": "TerminalErrorCode",
+                "__defaultValue": 999
             },
-            "type": "string",
+            "type": {
+                "__type": "string",
+                "__defaultValue": "INTERNAL_SERVER_ERROR"
+            },
             "isOnce": "boolean",
-            "detail": "string",
-            "message": "string"
+            "detail": {
+                "__type": "string",
+                "__defaultValue": "Какая-то технические детали"
+            },
+            "message": {
+                "__type": "string",
+                "__defaultValue": "Какая-то ошибка"
+            }
         },
         "error": {
             "__deletable": true,
             "errorType": "number",
-            "type": "string",
+            "type": {
+                "__type": "string",
+                "__defaultValue": "INTERNAL_SERVER_ERROR"
+            },
             "isOnce": "boolean",
-            "detail": "string",
-            "message": "string"
+            "detail": {
+                "__type": "string",
+                "__defaultValue": "Какая-то технические детали"
+            },
+            "message": {
+                "__type": "string",
+                "__defaultValue": "Какая-то ошибка"
+            }
         }
     },
     "schemas": {
         "kkm": {
             "__help": "https://online.sbis.ru/shared/disk/7d3e5c7c-5acc-4d7d-94f8-a346d1529eb9",
             "__version": 8,
-            "version": "number",
+            "version": {
+                "__type": "number",
+                "__readOnly": true
+            },
             "delta": "number",
             "device": {
                 "Driver": "string",
@@ -531,7 +563,11 @@
         "posscanner": {
             "__help": "https://online.sbis.ru/shared/disk/36216fc7-6b58-4668-986c-7aa4df505790",
             "delta": "number",
-            "version": "2",
+            "__version": 2,
+            "version": {
+                "__type": "number",
+                "__readOnly": true
+            },
             "isActivate": "boolean",
             "device": {
                 "DateTime": "string",
@@ -564,7 +600,10 @@
         "posscales": {
             "__help": "https://online.sbis.ru/shared/disk/d42836ee-c2a0-4965-917d-1cec80fa5213",
             "__version": 1,
-            "version": 1,
+            "version": {
+                "__type": "number",
+                "__readOnly": true
+            },
             "device": {
                 "Model": "string",
                 "Firmware": "string",
@@ -595,7 +634,10 @@
         "paymentterminal": {
             "__help": "https://online.sbis.ru/shared/disk/a81c3746-4f9e-43ee-8d1e-07df8aceb62d",
             "__version": 4,
-            "version": 4,
+            "version": {
+                "__type": "number",
+                "__readOnly": true
+            },
             "delta": "number",
             "device": {
                 "Model": "string",
@@ -640,7 +682,10 @@
         "buyerdisplay": {
             "__help": "https://online.sbis.ru/shared/disk/c854d2af-9212-40fe-b9b1-300e76a6b67a",
             "__version": 1,
-            "version": 1,
+            "version": {
+                "__type": "number",
+                "__readOnly": true
+            },
             "device": {
                 "Model": "string",
                 "Firmware": "string",

@@ -36,6 +36,17 @@ function exportJson(obj: JsonObject, name: string): void {
     window.URL.revokeObjectURL(url);
 }
 
+interface IFullType {
+    __nullable?: boolean;
+    __deletable?: boolean;
+    __type: string;
+    __help?: string[];
+    __readOnly?: boolean;
+    __name?: string;
+    __defaultValue?: string | number;
+    __possibleValues?: string[];
+}
+
 class Main extends React.Component<Record<string, unknown>, IState> {
     private _tabId: number;
     private readonly fileInput: RefObject<HTMLInputElement>;
@@ -91,12 +102,7 @@ class Main extends React.Component<Record<string, unknown>, IState> {
             parts.forEach((part, idx) => {
                 if (idx !== parts.length - 1) {
                     if (newObj) {
-                        if (newObj[part] === undefined) {
-                            console.info(
-                                `${part} is undefined for object`,
-                                newObj
-                            );
-                        } else {
+                        if (newObj[part] !== undefined) {
                             newObj = newObj[part] as JsonObject;
                         }
                     }
@@ -213,23 +219,28 @@ class Main extends React.Component<Record<string, unknown>, IState> {
             const schemaPart = schemaObj[fieldNameFromSchema] as JsonObject;
             for (const key in schemaPart) {
                 if (schemaPart.hasOwnProperty(key) && !key.startsWith('__')) {
-                    let type = schemaPart[key];
-                    if (typeof type === 'object' && type) {
-                        type = (type as JsonObject).__type;
+                    const fullType = schemaPart[key] as string | IFullType;
+                    let type;
+                    let defaultValue;
+                    if (typeof fullType === 'object' && fullType) {
+                        type = fullType.__type;
+                        defaultValue = fullType.__defaultValue;
+                    } else {
+                        type = fullType;
                     }
                     let newValue;
                     switch (type) {
                         case 'string':
-                            newValue = '';
+                            newValue = defaultValue ?? '';
                             break;
                         case 'number':
-                            newValue = 1;
+                            newValue = defaultValue ?? 1;
                             break;
                         case 'enum':
-                            newValue = 1;
+                            newValue = defaultValue ?? 1;
                             break;
                         case 'boolean':
-                            newValue = false;
+                            newValue = defaultValue ?? false;
                             break;
                     }
                     if (newValue !== undefined) {
@@ -379,257 +390,219 @@ class Main extends React.Component<Record<string, unknown>, IState> {
     private _getRenderByObject(
         obj: { [property: string]: Json },
         path?: string,
-        calculatedType?: string | JsonObject
+        calculatedType?: string | IFullType
     ): JSX.Element {
-        const items: JSX.Element[] = [];
         const schema = this._getSchema();
+        if (!schema) {
+            return <div>Нет схемы в settings.json для текущего устройства</div>;
+        }
+        const items: JSX.Element[] = [];
         for (const key in obj) {
             const current = obj[key];
             const valuePath = path ? `${path}/${key}` : key;
-            if (schema) {
-                const { obj, path } = this._getObjectPartByPath(
-                    schema,
-                    valuePath
+            const {
+                obj: schemaObj,
+                path: schemaPath
+            } = this._getObjectPartByPath(schema, valuePath);
+            let fullType = calculatedType
+                ? typeof calculatedType === 'string'
+                    ? { __type: calculatedType }
+                    : calculatedType
+                : schemaObj &&
+                  ((schemaObj[schemaPath] as unknown) as IFullType);
+            let help;
+            if (fullType && typeof fullType === 'object') {
+                help = fullType.__help?.join('\r\n');
+            } else if (!fullType) {
+                fullType = {
+                    __type: typeof current
+                };
+            } else {
+                fullType = {
+                    __type: String(fullType)
+                };
+            }
+            const type = fullType.__type;
+            if (fullType.__nullable && current === null) {
+                items.push(
+                    <div
+                        style={{
+                            display: 'flex',
+                            alignItems: 'center'
+                        }}>
+                        {key}:{' '}
+                        <IconButton
+                            className={'leftMargin'}
+                            icon={'plus-square'}
+                            onClick={this._handleValueCreate(valuePath)}
+                        />
+                    </div>
                 );
-                let type = calculatedType ? calculatedType : obj && obj[path];
-                if (type === undefined) {
-                    type = typeof current;
+            } else if (['number', 'string', 'boolean'].includes(type)) {
+                const typeToInput = {
+                    number: 'number',
+                    string: 'text',
+                    boolean: 'checkbox'
+                };
+                const inputProps: Record<string, unknown> = {};
+                if (type === 'boolean') {
+                    inputProps.checked = current === 'true';
+                } else {
+                    inputProps.style = { flexGrow: 1 };
+                    inputProps.value =
+                        current === null ? 'null' : (current as string);
                 }
-                if (type === 'number') {
-                    items.push(
-                        <label style={{ whiteSpace: 'pre', display: 'flex' }}>
-                            {key} :{' '}
-                            <input
-                                style={{ flexGrow: 1 }}
-                                type='number'
-                                onChange={this._handleValueChange(valuePath)}
-                                value={current as number}
-                                disabled={key === 'version'}
+                items.push(
+                    <label style={{ whiteSpace: 'pre', display: 'flex' }}>
+                        {help && (
+                            <IconButton
+                                icon={'info'}
+                                className={'rightMargin'}
+                                title={help}
                             />
-                        </label>
-                    );
-                } else if (type === 'string') {
-                    items.push(
-                        <label style={{ whiteSpace: 'pre', display: 'flex' }}>
-                            {key} :{' '}
-                            <input
-                                style={{ flexGrow: 1 }}
-                                onChange={this._handleValueChange(valuePath)}
-                                value={
-                                    typeof current === 'string'
-                                        ? current
-                                        : 'null'
-                                }
-                            />
-                        </label>
-                    );
-                } else if (type === 'boolean') {
-                    items.push(
-                        <label style={{ whiteSpace: 'pre', display: 'flex' }}>
-                            {key} :{' '}
-                            <input
-                                type='checkbox'
-                                onChange={this._handleValueChange(valuePath)}
-                                checked={current as boolean}
-                            />
-                        </label>
-                    );
-                } else if (Array.isArray(type)) {
-                    items.push(<div>::Array placeholder::</div>);
-                } else if (type && typeof type === 'object') {
-                    let selectOptions;
-                    const possibleKeys: JSX.Element[] = [];
-                    switch (type.__type) {
-                        case 'number':
-                            items.push(
-                                <label
-                                    style={{
-                                        whiteSpace: 'pre',
-                                        display: 'flex'
-                                    }}>
-                                    {type.__help && (
+                        )}
+                        {key}
+                        {' : '}
+                        <input
+                            {...inputProps}
+                            type={typeToInput[type]}
+                            onChange={this._handleValueChange(valuePath)}
+                            disabled={fullType.__readOnly}
+                        />
+                    </label>
+                );
+            } else {
+                let selectOptions;
+                const possibleKeys: JSX.Element[] = [];
+                switch (type) {
+                    case 'enum':
+                        if (typeof fullType.__name !== 'string') {
+                            throw Error('Enums should have a name');
+                        }
+                        selectOptions = this.state.settings.enums[
+                            fullType.__name
+                        ].map((item: IEnumElement) => {
+                            return (
+                                <option key={item.key} value={item.key}>
+                                    {`${item.title} [${item.key}]`}
+                                </option>
+                            );
+                        });
+                        items.push(
+                            <label
+                                style={{
+                                    whiteSpace: 'pre',
+                                    display: 'flex'
+                                }}>
+                                {key} :{' '}
+                                <select
+                                    className={
+                                        fullType.__name
+                                            .toLowerCase()
+                                            .includes('error')
+                                            ? 'errorTypeSelect'
+                                            : ''
+                                    }
+                                    style={{ flexGrow: 1 }}
+                                    value={current as string}
+                                    onChange={this._handleValueChange(
+                                        valuePath
+                                    )}>
+                                    {selectOptions}
+                                </select>
+                            </label>
+                        );
+                        break;
+                    case 'generic':
+                        fullType.__possibleValues?.forEach((possibleKey) => {
+                            if (
+                                !(current as JsonObject).hasOwnProperty(
+                                    possibleKey
+                                )
+                            ) {
+                                possibleKeys.push(
+                                    <div
+                                        key={possibleKey}
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center'
+                                        }}>
+                                        {possibleKey}:{' '}
                                         <IconButton
-                                            icon={'info'}
-                                            className={'rightMargin'}
-                                            title={(type.__help as string[]).join(
-                                                '\r\n'
+                                            className={'leftMargin'}
+                                            icon={'plus-square'}
+                                            onClick={this._handleValueCreate(
+                                                `${valuePath}/${possibleKey}`
                                             )}
                                         />
-                                    )}
-                                    {key} :{' '}
-                                    <input
-                                        style={{ flexGrow: 1 }}
-                                        type='number'
-                                        onChange={this._handleValueChange(
-                                            valuePath
-                                        )}
-                                        value={current as number}
-                                        disabled={key === 'version'}
-                                    />
-                                </label>
-                            );
-                            break;
-                        case 'enum':
-                            if (typeof type.__name !== 'string') {
-                                throw Error('Enums should have a name');
-                            }
-                            selectOptions = this.state.settings.enums[
-                                type.__name as string
-                            ].map((item: IEnumElement) => {
-                                return (
-                                    <option key={item.key} value={item.key}>
-                                        {`${item.title} [${item.key}]`}
-                                    </option>
+                                    </div>
                                 );
-                            });
-                            items.push(
-                                <label
-                                    style={{
-                                        whiteSpace: 'pre',
-                                        display: 'flex'
-                                    }}>
-                                    {key} :{' '}
-                                    <select
-                                        className={
-                                            type.__name
-                                                .toLowerCase()
-                                                .includes('error')
-                                                ? 'errorTypeSelect'
-                                                : ''
-                                        }
-                                        style={{ flexGrow: 1 }}
-                                        value={current as string}
-                                        onChange={this._handleValueChange(
-                                            valuePath
-                                        )}>
-                                        {selectOptions}
-                                    </select>
-                                </label>
-                            );
-                            break;
-                        case 'generic':
-                            (type.__possibleValues as string[]).forEach(
-                                (possibleKey) => {
-                                    if (
-                                        !(current as JsonObject).hasOwnProperty(
-                                            possibleKey
-                                        )
-                                    ) {
-                                        possibleKeys.push(
-                                            <div
-                                                key={possibleKey}
-                                                style={{
-                                                    display: 'flex',
-                                                    alignItems: 'center'
-                                                }}>
-                                                {possibleKey}:{' '}
-                                                <IconButton
-                                                    className={'leftMargin'}
-                                                    icon={'plus-square'}
-                                                    onClick={this._handleValueCreate(
-                                                        `${valuePath}/${possibleKey}`
-                                                    )}
-                                                />
-                                            </div>
-                                        );
-                                    }
-                                }
-                            );
-                            items.push(
-                                <fieldset>
-                                    <legend>
-                                        <div
-                                            style={{
-                                                display: 'flex',
-                                                alignItems: 'center'
-                                            }}>
-                                            {key}
-                                            {type.__nullable && (
-                                                <IconButton
-                                                    className={'leftMargin'}
-                                                    icon={'x-square'}
-                                                    onClick={this._handleValueDelete(
-                                                        valuePath
-                                                    )}
-                                                />
-                                            )}
-                                        </div>
-                                    </legend>
-                                    {this._getRenderByObject(
-                                        current as JsonObject,
-                                        valuePath
-                                    )}
-                                    {possibleKeys}
-                                </fieldset>
-                            );
-                            break;
-                        default:
-                            if (type.__nullable && current === null) {
-                                items.push(
+                            }
+                        });
+                        items.push(
+                            <fieldset>
+                                <legend>
                                     <div
                                         style={{
                                             display: 'flex',
                                             alignItems: 'center'
                                         }}>
-                                        {key}:{' '}
-                                        <IconButton
-                                            className={'leftMargin'}
-                                            icon={'plus-square'}
-                                            onClick={this._handleValueCreate(
-                                                valuePath
-                                            )}
-                                        />
-                                    </div>
-                                );
-                            } else {
-                                items.push(
-                                    <fieldset>
-                                        <legend>
-                                            <div
-                                                style={{
-                                                    display: 'flex',
-                                                    alignItems: 'center'
-                                                }}>
-                                                {key}
-                                                {type.__nullable && (
-                                                    <IconButton
-                                                        className={'leftMargin'}
-                                                        icon={'x-square'}
-                                                        onClick={this._handleValueNullify(
-                                                            valuePath
-                                                        )}
-                                                    />
+                                        {key}
+                                        {fullType.__nullable && (
+                                            <IconButton
+                                                className={'leftMargin'}
+                                                icon={'x-square'}
+                                                onClick={this._handleValueDelete(
+                                                    valuePath
                                                 )}
-                                                {type.__deletable && (
-                                                    <IconButton
-                                                        className={'leftMargin'}
-                                                        icon={'x-square'}
-                                                        onClick={this._handleValueDelete(
-                                                            valuePath
-                                                        )}
-                                                    />
-                                                )}
-                                            </div>
-                                        </legend>
-                                        {this._getRenderByObject(
-                                            current as JsonObject,
-                                            valuePath
+                                            />
                                         )}
-                                    </fieldset>
-                                );
-                            }
-                    }
-                } else {
-                    items.push(
-                        <label style={{ whiteSpace: 'pre', display: 'flex' }}>
-                            {key} :{' '}
-                            <input
-                                style={{ flexGrow: 1 }}
-                                onChange={this._handleValueChange(valuePath)}
-                                value={current as string}
-                            />
-                        </label>
-                    );
+                                    </div>
+                                </legend>
+                                {this._getRenderByObject(
+                                    current as JsonObject,
+                                    valuePath
+                                )}
+                                {possibleKeys}
+                            </fieldset>
+                        );
+                        break;
+                    default:
+                        items.push(
+                            <fieldset>
+                                <legend>
+                                    <div
+                                        style={{
+                                            display: 'flex',
+                                            alignItems: 'center'
+                                        }}>
+                                        {key}
+                                        {fullType.__nullable && (
+                                            <IconButton
+                                                className={'leftMargin'}
+                                                icon={'x-square'}
+                                                onClick={this._handleValueNullify(
+                                                    valuePath
+                                                )}
+                                            />
+                                        )}
+                                        {fullType.__deletable && (
+                                            <IconButton
+                                                className={'leftMargin'}
+                                                icon={'x-square'}
+                                                onClick={this._handleValueDelete(
+                                                    valuePath
+                                                )}
+                                            />
+                                        )}
+                                    </div>
+                                </legend>
+                                {this._getRenderByObject(
+                                    current as JsonObject,
+                                    valuePath
+                                )}
+                            </fieldset>
+                        );
                 }
             }
         }
