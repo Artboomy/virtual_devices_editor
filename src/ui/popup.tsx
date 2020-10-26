@@ -710,12 +710,14 @@ class Main extends React.Component<Record<string, unknown>, IState> {
                                             <IconButton
                                                 className={'leftMargin'}
                                                 icon={'save'}
+                                                type={'green'}
                                                 title={'Ctrl+S'}
                                                 onClick={this._handleSaveDevice}
                                             />
                                             <IconButton
                                                 className={'leftMargin'}
                                                 icon={'x-circle'}
+                                                type={'red'}
                                                 title={'Ctrl+Z'}
                                                 onClick={
                                                     this._handleResetDevice

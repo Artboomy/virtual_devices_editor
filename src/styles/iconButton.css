@@ -2,11 +2,22 @@
     width: 20px;
     cursor: pointer;
     height: 20px;
-    stroke: #304ffe;
     stroke-width: 2px;
     stroke-linecap: round;
     stroke-linejoin: round;
     fill: none;
+}
+
+.featherIcon-blue {
+    stroke: #304ffe;
+}
+
+.featherIcon-green {
+    stroke: #00c853;
+}
+
+.featherIcon-red {
+    stroke: #dd2c00;
 }
 
 .featherIcon:hover {

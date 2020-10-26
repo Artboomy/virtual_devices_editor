@@ -4,6 +4,7 @@ import '../styles/iconButton.css';
 type IconButtonParams = {
     className?: string;
     icon: string;
+    type?: 'green' | 'red';
     title?: string;
     onClick?: () => void;
 };
@@ -11,7 +12,9 @@ type IconButtonParams = {
 export default function IconButton(props: IconButtonParams): JSX.Element {
     return (
         <svg
-            className={`featherIcon ${props.className || ''}`}
+            className={`featherIcon featherIcon-${props.type || 'blue'} ${
+                props.className || ''
+            }`}
             onClick={props.onClick}>
             <use xlinkHref={`icons/feather-sprite.svg#${props.icon}`} />
             {props.title && <title>{props.title}</title>}
