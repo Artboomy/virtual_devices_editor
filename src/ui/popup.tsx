@@ -446,7 +446,7 @@ class Main extends React.Component<Record<string, unknown>, IState> {
                 };
                 const inputProps: Record<string, unknown> = {};
                 if (type === 'boolean') {
-                    inputProps.checked = current === 'true';
+                    inputProps.checked = current || current === 'true';
                 } else {
                     inputProps.style = { flexGrow: 1 };
                     inputProps.value =
