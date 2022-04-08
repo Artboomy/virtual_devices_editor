@@ -508,6 +508,127 @@
                 "FiscalDocumentsCountForTransmit": "number",
                 "FirstUntransmittedFiscalDocumentDateTime": "string"
             },
+            "responseToRequestForMarkingCode": {
+                "__type": "generic",
+                "__possibleValues": [
+                    "TypeOfMarkingCode",
+                    "RequestProcessingCodes",
+                    "RequestNumberForMarkingCode",
+                    "OismResponseAboutProductStatus",
+                    "DateAndTimeOfRequestForMarkingCode",
+                    "ProductId"
+                ],
+                "__generics": {
+                    "TypeOfMarkingCode": {
+                        "__name": "TypeOfMarkingCode",
+                        "__type": "enum",
+                        "__enum": [{
+                            "key": 0,
+                            "title": "Тип кода маркировки не идентифицирован"
+                        }, {
+                            "key": 1,
+                            "title": "Короткий код маркировки"
+                        }, {
+                            "key": 2,
+                            "title": "Код маркировки со значением кода проверки длиной 88 символов, подлежащим проверке в ФН"
+                        }, {
+                            "key": 3,
+                            "title": "Код маркировки со значением кода проверки длиной 44 символа, не подлежащим проверке в ФН"
+                        }, {
+                            "key": 4,
+                            "title": "Код маркировки со значением кода проверки длиной 44 символа, подлежащим проверке в ФН"
+                        }, {
+                            "key": 5,
+                            "title": "Код маркировки со значением кода проверки длиной 4 символа, не подлежащим проверке в ФН"
+                        }
+                        ],
+                        "__defaultValue": 0,
+                        "__deletable": true
+                    },
+                    "RequestProcessingCodes": {
+                        "__name": "RequestProcessingCodes",
+                        "__type": "enum",
+                        "__enum": [{
+                            "key": 0,
+                            "title": "Запрос имеет корректный формат, в том числе корректный формат кода маркировки"
+                        }, {
+                            "key": 1,
+                            "title": "Запрос имеет некорректный формат"
+                        }, {
+                            "key": 2,
+                            "title": "Указанный в запросе код маркировки имеет некорректный формат (не распознан)"
+                        }],
+                        "__defaultValue": 0,
+                        "__deletable": true
+                    },
+                    "OismResponseAboutProductStatus": {
+                        "__name": "OismResponseAboutProductStatus",
+                        "__type": "enum",
+                        "__enum": [{
+                            "key": 1,
+                            "title": "1 - Планируемый статус товара корректен"
+                        }, {
+                            "key": 2,
+                            "title": "2 - Планируемый статус товара некорректен"
+                        }, {
+                            "key": 3,
+                            "title": "3 - Оборот товара приостановлен"
+                        }],
+                        "__defaultValue": 1,
+                        "__deletable": true
+                    },
+                    "DateAndTimeOfRequestForMarkingCode": {
+                        "__type": "string",
+                        "__name": "DateAndTimeOfRequestForMarkingCode",
+                        "__defaultValue": "",
+                        "__deletable": true
+                    },
+                    "ProductId": {
+                        "__type": "string",
+                        "__name": "ProductId",
+                        "__defaultValue": "",
+                        "__deletable": true
+                    },
+                    "RequestNumberForMarkingCode": {
+                        "__type": "number",
+                        "__name": "RequestNumberForMarkingCode",
+                        "__defaultValue": 0,
+                        "__deletable": true
+                    }
+                },
+                "RequestProcessingResults": {
+                    "__type": "number",
+                    "__help": [
+                        "Битовая маска",
+                        "2 - Результат проверки КП КМ,",
+                        "8 - Статус товара"
+                    ],
+                    "__name": "RequestProcessingResults"
+                },
+                "LabelCodeProcesMode": "number",
+                "CheckingProdInformationResult": {
+                    "__type": "number",
+                    "__help": [
+                        "Битовая маска",
+                        "1 - Выполнение проверки в ФН и (или) ОИСМ,",
+                        "2 - Результат проверки КП КМ,",
+                        "4 - Получение сведений о статусе товара от ОИСМ,",
+                        "8 - Корректность статуса товара от ОИСМ,",
+                        "16 - Режим работы ККТ при котором был сформирован статус товара"
+                    ]
+                }
+            },
+            "supportedOperation": {
+                "Sale": "boolean",
+                "SaleReturn": "boolean",
+                "CashIncome": "boolean",
+                "CashOutcome": "boolean",
+                "ReceiptCorrection": "boolean",
+                "XReport": "boolean",
+                "DateTimeSet": "boolean",
+                "ProductCodeSupportEan": "boolean",
+                "CheckMarkingCode": "boolean"
+            },
             "emulation": {
                 "delay": {
                     "printDocument": "number",
@@ -528,7 +649,9 @@
                     "setDateTime": "number",
                     "openCashbox": "number",
                     "getFiscalDocumentDataFDArchive": "number",
-                    "getFiscalSessionData2": "number"
+                    "getFiscalSessionData2": "number",
+                    "getSupportedOperations": "number",
+                    "checkMarkingCode": "number"
                 },
                 "delayAsync": {
                     "getFiscalSessionData2": "number"
@@ -555,7 +678,9 @@
                         "setDateTime",
                         "openCashbox",
                         "getFiscalDocumentDataFDArchive",
-                        "getFiscalSessionData2"
+                        "getFiscalSessionData2",
+                        "getSupportedOperations",
+                        "checkMarkingCode"
                     ]
                 }
             }

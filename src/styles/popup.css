@@ -56,8 +56,9 @@ select {
     height: 20px;
 }
 
-.errorTypeSelect {
-    max-width: 330px;
+option {
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .separator {
@@ -85,4 +86,8 @@ select {
 
 .hotkeysContainer:focus {
     outline: none;
+}
+
+.minFlexShrink {
+    flex-shrink: 0;
 }

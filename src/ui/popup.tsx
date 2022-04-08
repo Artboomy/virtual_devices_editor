@@ -45,6 +45,8 @@ interface IFullType {
     __name?: string;
     __defaultValue?: string | number;
     __possibleValues?: string[];
+    __enum?: Json[],
+    __generics?: JsonObject;
 }
 
 class Main extends React.Component<Record<string, unknown>, IState> {
@@ -110,9 +112,11 @@ class Main extends React.Component<Record<string, unknown>, IState> {
                     newPath = part;
                     if (newObj && newObj[newPath] === undefined) {
                         if (newObj.__type === 'generic') {
-                            newObj[newPath] = this.state.settings.generics[
-                                newObj.__name as string
-                            ];
+                            newObj[newPath] = newObj.__generics ?
+                                newObj.__generics[newPath] :
+                                this.state.settings.generics[
+                                    newObj.__name as string
+                                    ];
                         }
                     }
                 }
@@ -215,38 +219,23 @@ class Main extends React.Component<Record<string, unknown>, IState> {
             if (!obj || !schemaObj || !fieldNameToChange) {
                 return;
             }
-            obj[fieldNameToChange] = {};
-            const schemaPart = schemaObj[fieldNameFromSchema] as JsonObject;
-            for (const key in schemaPart) {
-                if (schemaPart.hasOwnProperty(key) && !key.startsWith('__')) {
-                    const fullType = schemaPart[key] as string | IFullType;
-                    let type;
-                    let defaultValue;
-                    if (typeof fullType === 'object' && fullType) {
-                        type = fullType.__type;
-                        defaultValue = fullType.__defaultValue;
-                    } else {
-                        type = fullType;
-                    }
-                    let newValue;
-                    switch (type) {
-                        case 'string':
-                            newValue = defaultValue ?? '';
-                            break;
-                        case 'number':
-                            newValue = defaultValue ?? 1;
-                            break;
-                        case 'enum':
-                            newValue = defaultValue ?? 1;
-                            break;
-                        case 'boolean':
-                            newValue = defaultValue ?? false;
-                            break;
-                    }
-                    if (newValue !== undefined) {
-                        (obj[fieldNameToChange] as Record<string, unknown>)[
-                            key
-                        ] = newValue;
+            const schemaPart = schemaObj[fieldNameFromSchema] as JsonObject | IFullType;
+            if (schemaPart.__type) {
+                const newValue = this._getDefaultValueByFullType(schemaPart as IFullType);
+                if (newValue !== undefined) {
+                    obj[fieldNameToChange] = newValue;
+                }
+            } else {
+                obj[fieldNameToChange] = {};
+                for (const key in schemaPart) {
+                    if (schemaPart.hasOwnProperty(key) && !key.startsWith('__')) {
+                        const fullType = schemaPart[key] as string | IFullType;
+                        const newValue = this._getDefaultValueByFullType(fullType);
+                        if (newValue !== undefined) {
+                            (obj[fieldNameToChange] as Record<string, unknown>)[
+                                key
+                                ] = newValue;
+                        }
                     }
                 }
             }
@@ -254,16 +243,43 @@ class Main extends React.Component<Record<string, unknown>, IState> {
         }
     };
 
+    private _getDefaultValueByFullType(fullType: string | IFullType): Json | undefined {
+        let type;
+        let defaultValue;
+        if (typeof fullType === 'object' && fullType) {
+            type = fullType.__type;
+            defaultValue = fullType.__defaultValue;
+        } else {
+            type = fullType;
+        }
+        let newValue;
+        switch (type) {
+            case 'string':
+                newValue = defaultValue ?? '';
+                break;
+            case 'number':
+                newValue = defaultValue ?? 1;
+                break;
+            case 'enum':
+                newValue = defaultValue ?? 1;
+                break;
+            case 'boolean':
+                newValue = defaultValue ?? false;
+                break;
+        }
+        return newValue;
+    }
+
     private _applyChanges(newDevices: Record<string, JsonObject>): void {
         const newState: Pick<
             IState,
             'devices' | 'hasChanges' | 'originalDevice'
-        > = {
+            > = {
             devices: newDevices
         };
         const originalDevice =
             this.state.originalDevice ??
-            JSON.stringify(this.state.devices[this.state.selectedDevice]);
+                JSON.stringify(this.state.devices[this.state.selectedDevice]);
         if (!this.state.hasChanges) {
             newState.hasChanges = true;
             newState.originalDevice = originalDevice;
@@ -409,7 +425,7 @@ class Main extends React.Component<Record<string, unknown>, IState> {
                     ? { __type: calculatedType }
                     : calculatedType
                 : schemaObj &&
-                  ((schemaObj[schemaPath] as unknown) as IFullType);
+                ((schemaObj[schemaPath] as unknown) as IFullType);
             let help;
             if (fullType && typeof fullType === 'object') {
                 help = fullType.__help?.join('\r\n');
@@ -423,6 +439,15 @@ class Main extends React.Component<Record<string, unknown>, IState> {
                 };
             }
             const type = fullType.__type;
+            const iconDelete = (
+                <IconButton
+                    className={'leftMargin minFlexShrink'}
+                    icon={'x-square'}
+                    onClick={this._handleValueDelete(
+                        valuePath
+                    )}
+                />
+            );
             if (fullType.__nullable && current === null) {
                 items.push(
                     <div
@@ -469,6 +494,7 @@ class Main extends React.Component<Record<string, unknown>, IState> {
                             onChange={this._handleValueChange(valuePath)}
                             disabled={fullType.__readOnly}
                         />
+                        {fullType.__deletable && iconDelete}
                     </label>
                 );
             } else {
@@ -479,9 +505,9 @@ class Main extends React.Component<Record<string, unknown>, IState> {
                         if (typeof fullType.__name !== 'string') {
                             throw Error('Enums should have a name');
                         }
-                        selectOptions = this.state.settings.enums[
+                        selectOptions = (fullType.__enum || this.state.settings.enums[
                             fullType.__name
-                        ].map((item: IEnumElement) => {
+                            ]).map((item: IEnumElement) => {
                             return (
                                 <option key={item.key} value={item.key}>
                                     {`${item.title} [${item.key}]`}
@@ -492,24 +518,19 @@ class Main extends React.Component<Record<string, unknown>, IState> {
                             <label
                                 style={{
                                     whiteSpace: 'pre',
-                                    display: 'flex'
+                                    display: 'flex',
+                                    maxWidth: '400px'
                                 }}>
                                 {key} :{' '}
                                 <select
-                                    className={
-                                        fullType.__name
-                                            .toLowerCase()
-                                            .includes('error')
-                                            ? 'errorTypeSelect'
-                                            : ''
-                                    }
-                                    style={{ flexGrow: 1 }}
+                                    style={{ flexGrow: 1, flexShrink: 1, minWidth: '1px' }}
                                     value={current as string}
                                     onChange={this._handleValueChange(
                                         valuePath
                                     )}>
                                     {selectOptions}
                                 </select>
+                                {fullType.__deletable && iconDelete}
                             </label>
                         );
                         break;
@@ -586,15 +607,7 @@ class Main extends React.Component<Record<string, unknown>, IState> {
                                                 )}
                                             />
                                         )}
-                                        {fullType.__deletable && (
-                                            <IconButton
-                                                className={'leftMargin'}
-                                                icon={'x-square'}
-                                                onClick={this._handleValueDelete(
-                                                    valuePath
-                                                )}
-                                            />
-                                        )}
+                                        {fullType.__deletable && iconDelete}
                                     </div>
                                 </legend>
                                 {this._getRenderByObject(
@@ -657,8 +670,8 @@ class Main extends React.Component<Record<string, unknown>, IState> {
         if (this.state.selectedDevice) {
             body = this._getSchema()
                 ? this._getRenderByObject(
-                      this.state.devices[this.state.selectedDevice]
-                  )
+                    this.state.devices[this.state.selectedDevice]
+                )
                 : 'Device not supported';
         }
         const hasDevices = !!Object.keys(this.state.devices).length;
