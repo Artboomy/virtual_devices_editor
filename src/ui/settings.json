@@ -410,6 +410,11 @@
                 "__readOnly": true
             },
             "delta": "number",
+            "isPlugin": {
+                "__type": "boolean",
+                "__default": true,
+                "__help": ["Отправлять запросы в SBIS3Plugin"]
+            },
             "device": {
                 "Driver": "string",
                 "DeviceID": "string",
