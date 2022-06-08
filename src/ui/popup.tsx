@@ -788,7 +788,7 @@ class Main extends React.Component<Record<string, unknown>, IState> {
         );
     };
 
-    private _getDevices() {
+    private _getDevices(): Promise<void> {
         if (!this._tabId) {
             throw Error('Нет подключенной вкладки');
         }
@@ -814,7 +814,7 @@ class Main extends React.Component<Record<string, unknown>, IState> {
                                 hasChanges: false,
                                 originalDevice: undefined
                             },
-                            resolve
+                            resolve as () => void
                         );
                     } else {
                         resolve();
